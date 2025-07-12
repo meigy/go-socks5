@@ -15,22 +15,51 @@
 
 ```
 demo/
-├── main.go          # SOCKS5代理服务器
-├── client/          # 客户端测试程序
-│   └── main.go      # SOCKS5客户端
-└── README.md        # 使用说明
+├── main.go              # SOCKS5代理服务器
+├── config.json          # 默认配置文件
+├── config.example.json  # 示例配置文件
+├── client/              # 客户端测试程序
+│   └── main.go          # SOCKS5客户端
+├── build.bat            # Windows完整构建脚本
+├── build-simple.bat     # Windows简化构建脚本
+├── build.sh             # Linux/macOS完整构建脚本
+├── build-simple.sh      # Linux/macOS简化构建脚本
+├── Makefile             # 通用构建配置
+├── BUILD.md             # 构建说明文档
+├── fix-deps.bat         # Windows依赖修复脚本
+├── fix-deps.sh          # Linux/macOS依赖修复脚本
+├── test-build.bat       # 构建结果测试脚本
+├── start_server.bat     # 启动脚本
+└── README.md            # 使用说明
 ```
 
 ## 使用方法
 
-### 1. 启动SOCKS5代理服务器
+### 1. 配置文件
+
+程序使用JSON配置文件来设置服务器参数。默认配置文件为 `config.json`：
+
+```json
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 1080
+  },
+  "auth": {
+    "username": "admin",
+    "password": "password"
+  }
+}
+```
+
+### 2. 启动SOCKS5代理服务器
 
 ```bash
-# 使用默认配置启动
+# 使用默认配置文件启动
 go run main.go
 
-# 自定义配置启动
-go run main.go -host 0.0.0.0 -port 1080 -user admin -pass mypassword
+# 使用自定义配置文件启动
+go run main.go -config myconfig.json
 
 # 查看帮助信息
 go run main.go -help
@@ -38,11 +67,15 @@ go run main.go -help
 
 #### 命令行参数
 
-- `-host`: 代理服务器监听地址 (默认: 127.0.0.1)
-- `-port`: 代理服务器监听端口 (默认: 1080)
-- `-user`: 用户名 (默认: admin)
-- `-pass`: 密码 (默认: password)
+- `-config`: 配置文件路径 (默认: config.json)
 - `-help`: 显示帮助信息
+
+#### 配置文件参数
+
+- `server.host`: 代理服务器监听地址
+- `server.port`: 代理服务器监听端口
+- `auth.username`: 用户名
+- `auth.password`: 密码
 
 ### 2. 测试客户端
 
@@ -115,7 +148,27 @@ export https_proxy=socks5://admin:password@127.0.0.1:1080
 
 ## 故障排除
 
-### 常见问题
+### 构建问题
+
+1. **Go依赖下载失败**
+   ```cmd
+   错误: dial tcp: connectex: A connection attempt failed
+   解决: 运行依赖修复脚本
+   .\fix-deps.bat
+   ```
+
+2. **编译错误**
+   ```cmd
+   错误: cannot find package "go-socks5"
+   解决: 确保在正确的目录中运行，或运行 go mod tidy
+   ```
+
+3. **乱码问题**
+   ```cmd
+   解决: 所有批处理脚本已添加 chcp 65001 设置UTF-8编码
+   ```
+
+### 运行问题
 
 1. **端口被占用**
    ```
@@ -139,8 +192,42 @@ export https_proxy=socks5://admin:password@127.0.0.1:1080
 
 启动服务器时查看详细日志：
 ```bash
-go run main.go -host 0.0.0.0 -port 1080 -user admin -pass password
+# 使用默认配置
+go run main.go
+
+# 使用自定义配置
+go run main.go -config config.example.json
 ```
+
+## 构建和发布
+
+### 快速构建
+```bash
+# Windows
+build-simple.bat
+
+# Linux/macOS
+chmod +x build-simple.sh
+./build-simple.sh
+
+# 使用Makefile
+make build
+```
+
+### 完整构建（跨平台）
+```bash
+# Windows
+build.bat
+
+# Linux/macOS
+chmod +x build.sh
+./build.sh
+
+# 使用Makefile
+make package
+```
+
+详细构建说明请参考 [BUILD.md](BUILD.md) 文档。
 
 ## 扩展功能
 

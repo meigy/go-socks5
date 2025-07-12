@@ -1,5 +1,7 @@
 module go-socks5
 
-go 1.19
+go 1.23.0
 
-require golang.org/x/net v0.42.0 // indirect
+toolchain go1.24.5
+
+require golang.org/x/net v0.42.0
